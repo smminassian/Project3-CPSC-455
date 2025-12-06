@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Home Page</title>
+</head>
+<body>
+  <h1>Welcome to CPSC-455: Web Security Project Page</h1>
+  <p>This page is the home page. We will build more options on top of this page. 
+    Our goal is to build a secure web application. 
+  </p>
+
+  <button onclick="window.location.href='{{ url_for('info') }}'">info</button>
+  <button onclick="window.location.href='{{ url_for('register') }}'">Register</button>
+  <button onclick="window.location.href='{{ url_for('login_page') }}'">Login</button>
+  {% if 'username' in session %}
+    <button onclick="window.location.href='{{ url_for('create_wallet_page') }}'">Create Wallet</button>
+    <button onclick="window.location.href='{{ url_for('show_wallet') }}'">Show Wallet</button>
+    <button onclick="window.location.href='{{ url_for('add_money') }}'">Add money</button>
+    <button onclick="window.location.href='{{ url_for('transfer_money') }}'">Transfer money</button>
+    <form method="POST" action="{{ url_for('logout') }}">
+        <button type="submit">Logout</button>
+    </form>
+  {% endif %}
+</body>
+</html>

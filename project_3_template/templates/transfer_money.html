@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Transfer Money</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; }.error { color: red; }.success { color: green; }
+        form { margin-top: 20px; }
+    </style>
+</head>
+<body>
+    <h1>Transfer Money</h1>
+
+    <!-- Vulnerable Success Message (XSS risk) -->
+    {% if success %}
+        <p class="success">{{ success }}</p> <!-- Vulnerable: No escaping -->
+    {% endif %}
+
+    <!-- Vulnerable Error Message -->
+    {% if error %}
+        <p class="error">{{ error }}</p> <!-- Vulnerable: No escaping -->
+    {% endif %}
+
+    <p>Welcome, {{ username }}!</p>
+    <!-- Vulnerable Unsanitized Balance -->
+    <p>Your Current Wallet Balance: <b>${{ balance }}</b></p> <!-- XSS vulnerability -->
+
+    <!-- Transfer Money Form -->
+    <form method="POST" action="{{ url_for('transfer_money') }}">
+        <label for="recipient">Recipient Username:</label>
+        <input type="text" id="recipient" name="recipient" required> <!-- Vulnerable -->
+        <br><br>
+        <label for="amount">Amount to Transfer:</label>
+        <input type="number" id="amount" name="amount" step="0.01" required>
+        <br><br>
+        <button type="submit">Transfer Money</button>
+    </form>
+
+    <br>
+    <!-- Navigation Button -->
+    <button onclick="window.location.href='{{ url_for('index') }}'">Back to Home</button>
+</body>
+</html>

@@ -98,6 +98,12 @@ def create_wallet():
 
     # TODO: Add input validation for the amount. Make sure the user is giving 
     # a number and the value is >= 0.
+    try:
+        initial_balance = float(initial_balance)
+        if initial_balance < 0:
+            raise ValueError("Initial balance cannot be negative.")
+    except ValueError as e:
+        return str(e), 400
 
     # Check if the wallet already exists for the logged-in user
     existing_wallet = wallets_collection.find_one({"username": session['username']})
@@ -120,6 +126,7 @@ def show_wallet():
     # TODO: Fetch the wallet from wallets_collection for this username and 
     # assign the value to wallet variable. Check create_wallet function to get some hints.
     # We use wallet variable in this function in different places. 
+    wallet = wallets_collection.find_one({"username": session['username']})
     
     if not wallet:
         return "Wallet does not exist. Please create one first.", 404
@@ -170,7 +177,9 @@ def add_money():
 @app.route('/transfer_money', methods=['GET', 'POST'])
 def transfer_money():
     # TODO: add a session check. If the user is not logged in send them to the login page.
-
+    if 'username' not in session:
+        return redirect(url_for('login_page'))
+    
     # For GET request: Display the transfer money form
     if request.method == 'GET':
         wallet = wallets_collection.find_one({"username": session['username']})
@@ -199,16 +208,26 @@ def transfer_money():
                 error="Invalid amount. Please enter a positive number.",
                 success=None
             )
-
-        amount = float(amount)  # Naively converting input to float
-
+        try:
+            amount = float(amount)  # Naively converting input to float
+        except ValueError:
+            return "Invalid amount format.", 400
+        
+        if amount <= 0:
+            return "Amount must be greater than zero.", 400
         # Check if the sender has enough balance
         sender_wallet = wallets_collection.find_one({"username": session['username']})
         # TODO: Add lines to redirect to transfer_money page and display a message
         # that the balance is insufficient. You can follow the previous render_template
         # call to show invalid amount.
-
-
+        if sender_wallet['balance'] < amount:
+             return render_template(
+                'transfer_money.html',
+                balance=wallet['balance'],
+                username=session['username'],
+                error="Insufficient balance for this transfer.",
+                success=None
+             )
         # Check if the recipient exists
         recipient_wallet = wallets_collection.find_one({"username": recipient_username})
         if not recipient_wallet:

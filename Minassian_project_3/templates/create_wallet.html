@@ -6,6 +6,7 @@
 <body>
     <h1>Create Your Wallet</h1>
     <form method="post" action="/create_wallet">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
         <label for="initial_balance">Initial Balance ($):</label>
         <input type="text" name="initial_balance" placeholder="Enter initial balance" required>
         <br>

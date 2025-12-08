@@ -3,10 +3,12 @@ from flask_bcrypt import Bcrypt
 from pymongo import MongoClient
 from datetime import timedelta
 from flask_socketio import SocketIO, emit, disconnect
+from flask_wtf.csrf import CSRFProtect
 import os
 
 
 app = Flask(__name__)
+csrf = CSRFProtect(app)
 socketio = SocketIO(app, cors_allowed_origins="*")
 bcrypt = Bcrypt(app)
 
@@ -93,9 +95,11 @@ def create_wallet_page():
 def create_wallet():
     if 'username' not in session:
         return redirect(url_for('login_page'))  # Redirect to login if not logged in
-
+    
     initial_balance = request.form.get('initial_balance', '0')
 
+    if 'e' in initial_balance.lower():
+        return "Scientific Notation is not allowed.", 400
     # TODO: Add input validation for the amount. Make sure the user is giving 
     # a number and the value is >= 0.
     try:
@@ -157,6 +161,8 @@ def add_money():
     if request.method == 'POST':
         
         amount = request.form.get('amount')
+        if 'e' in amount.lower():
+            return "Scientific Notation is not allowed.", 400
         if not amount or float(amount) <= 0:
             wallet = wallets_collection.find_one({"username": session['username']})
             return render_template(
@@ -198,6 +204,8 @@ def transfer_money():
     if request.method == 'POST':
         recipient_username = request.form.get('recipient')
         amount = request.form.get('amount')
+        if 'e' in amount.lower():
+            return "Scientific Notation is not allowed.", 400
 
         if not amount or float(amount) <= 0:
             wallet = wallets_collection.find_one({"username": session['username']})
@@ -210,6 +218,8 @@ def transfer_money():
             )
         try:
             amount = float(amount)  # Naively converting input to float
+            if 'e' in str(amount).lower():
+                return "Scientific Notation is not allowed.", 400
         except ValueError:
             return "Invalid amount format.", 400
         

@@ -28,6 +28,7 @@
 
     <!-- Transfer Money Form -->
     <form method="POST" action="{{ url_for('transfer_money') }}">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
         <label for="recipient">Recipient Username:</label>
         <input type="text" id="recipient" name="recipient" required> <!-- Vulnerable -->
         <br><br>
